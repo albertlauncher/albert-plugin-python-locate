@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2022-2024 Manuel Schneider
-
-"""
-`locate` wrapper. Note that it is up to you to ensure that the locate database is \
-up to date. Pass params as necessary. The input is split using a shell lexer.
-"""
-
+# Copyright (c) 2022-2025 Manuel Schneider
 
 import shlex
 import subprocess
@@ -14,11 +8,11 @@ from pathlib import Path
 from albert import *
 
 md_iid = "3.0"
-md_version = "2.0"
+md_version = "3.0"
 md_name = "Locate"
-md_description = "Find and open files using locate"
+md_description = "Find files using locate"
 md_license = "MIT"
-md_url = "https://github.com/albertlauncher/python/tree/main/locate"
+md_url = "https://github.com/albertlauncher/albert-plugin-python-locate"
 md_bin_dependencies = "locate"
 md_authors = "@manuelschneid3r"
 
@@ -37,48 +31,59 @@ class Plugin(PluginInstance, TriggerQueryHandler):
             f"file:{Path(__file__).parent}/locate.svg"
         ]
 
-    def synopsis(self, query):
-        return "<locate params>"
-
     def defaultTrigger(self):
         return "'"
 
     def handleTriggerQuery(self, query):
-        if len(query.string) > 2:
+        try:
+            args = shlex.split(query.string)
+        except ValueError:
+            return
 
-            try:
-                args = shlex.split(query.string)
-            except ValueError:
-                return
+        if args and all(len(token) > 2 for token in args):
 
-            result = subprocess.run(['locate', *args], stdout=subprocess.PIPE, text=True)
+            # Fetch results from locate and filter them using Matcher
+
+            matcher = Matcher(query.string)
+            rank_items = []
+            with subprocess.Popen(['locate', *args], stdout=subprocess.PIPE, text=True) as proc:
+                for line in proc.stdout:
+                    if not query.isValid:
+                        return
+
+                    path = line.strip()
+                    filename = Path(path).name
+                    if m := matcher.match(filename, path):
+                        rank_items.append(
+                            RankItem(
+                                StandardItem(
+                                    id=path,
+                                    text=filename,
+                                    subtext=path,
+                                    iconUrls=[f"qfip:{path}"],
+                                    actions=[
+                                        Action("open", "Open", lambda p=path: openUrl("file://%s" % p))
+                                    ]
+                                ),
+                                m
+                            )
+                        )
+
+            # Filter using the matcher
+
+            rank_items = sorted(rank_items, key=lambda x: x.score, reverse=True)
+
             if not query.isValid:
                 return
-            lines = sorted(result.stdout.splitlines(), reverse=True)
-            if not query.isValid:
-                return
 
-            for path in lines:
-                query.add(
-                    StandardItem(
-                        id=path,
-                        text=Path(path).name,
-                        subtext=path,
-                        iconUrls=self.iconUrls,
-                        actions=[
-                            Action("open", "Open", lambda p=path: openUrl("file://%s" % p))
-                        ]
-                    )
-                )
+            query.add([ri.item for ri in rank_items])
+
         else:
             query.add(
                 StandardItem(
-                    id="updatedb",
-                    text="Update locate database",
-                    subtext="Type at least three chars for a search",
-                    iconUrls=self.iconUrls,
-                    actions=[
-                        Action("update", "Update", lambda: runTerminal("sudo updatedb"))
-                    ]
+                    id="locate.info",
+                    text="Token is too short",
+                    subtext="Each token must have at least three characters",
+                    iconUrls=self.iconUrls
                 )
             )
