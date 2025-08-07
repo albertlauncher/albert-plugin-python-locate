@@ -8,14 +8,14 @@ from pathlib import Path
 from albert import *
 
 md_iid = "3.0"
-md_version = "3.0"
+md_version = "3.1"
 md_name = "Locate"
 md_description = "Find files using locate"
 md_license = "MIT"
 md_url = "https://github.com/albertlauncher/albert-plugin-python-locate"
-md_bin_dependencies = "locate"
-md_authors = "@manuelschneid3r"
-md_maintainers = ["@manuelschneid3r"]
+md_bin_dependencies = ["locate"]
+md_authors = ["@ManuelSchneid3r"]
+md_maintainers = ["@ManuelSchneid3r"]
 
 
 class Plugin(PluginInstance, TriggerQueryHandler):
