@@ -53,7 +53,7 @@ class Plugin(PluginInstance, TriggerQueryHandler):
                                 id=path,
                                 text=filename,
                                 subtext=path,
-                                iconFactory=lambda: makeFileTypeIcon(path),
+                                icon_factory=lambda: makeFileTypeIcon(path),
                                 actions=[
                                     Action("open", "Open", lambda p=path: openFile(p))
                                 ]
@@ -76,6 +76,6 @@ class Plugin(PluginInstance, TriggerQueryHandler):
                     id="locate.info",
                     text="Token is too short",
                     subtext="Each token must have at least three characters",
-                    iconFactory=lambda: makeComposedIcon(makeGraphemeIcon("🔎"), makeGraphemeIcon("⚠️"), 1.0)
+                    icon_factory=lambda: makeComposedIcon(makeGraphemeIcon("🔎"), makeGraphemeIcon("⚠️"), 1.0)
                 )
             )
