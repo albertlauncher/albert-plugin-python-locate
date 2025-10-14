@@ -9,7 +9,7 @@ from albert import (PluginInstance, TriggerQueryHandler, StandardItem, Action, o
                     makeFileTypeIcon, makeGraphemeIcon, makeComposedIcon, Matcher)
 
 md_iid = "4.0"
-md_version = "3.1"
+md_version = "3.1.1"
 md_name = "Locate"
 md_description = "Find files using locate"
 md_license = "MIT"
