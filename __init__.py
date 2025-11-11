@@ -5,10 +5,10 @@ import shlex
 import subprocess
 from pathlib import Path
 
-from albert import (PluginInstance, TriggerQueryHandler, StandardItem, Action, openFile,
+from albert import (PluginInstance, GeneratorQueryHandler, StandardItem, Action, openFile,
                     makeFileTypeIcon, makeGraphemeIcon, makeComposedIcon, Matcher)
 
-md_iid = "4.0"
+md_iid = "5.0"
 md_version = "3.1.1"
 md_name = "Locate"
 md_description = "Find files using locate"
@@ -19,18 +19,18 @@ md_authors = ["@ManuelSchneid3r"]
 
 
 
-class Plugin(PluginInstance, TriggerQueryHandler):
+class Plugin(PluginInstance, GeneratorQueryHandler):
 
     def __init__(self):
         PluginInstance.__init__(self)
-        TriggerQueryHandler.__init__(self)
+        GeneratorQueryHandler.__init__(self)
 
     def defaultTrigger(self):
         return "'"
 
-    def handleTriggerQuery(self, query):
+    def items(self, ctx):
         try:
-            args = shlex.split(query.string)
+            args = shlex.split(ctx.query)
         except ValueError:
             return
 
@@ -38,11 +38,11 @@ class Plugin(PluginInstance, TriggerQueryHandler):
 
             # Fetch results from locate and filter them using Matcher
 
-            matcher = Matcher(query.string)
+            matcher = Matcher(ctx.query)
             items = []
             with subprocess.Popen(['locate', *args], stdout=subprocess.PIPE, text=True) as proc:
                 for line in proc.stdout:
-                    if not query.isValid:
+                    if not ctx.isValid:
                         return
 
                     path = line.strip()
@@ -65,17 +65,17 @@ class Plugin(PluginInstance, TriggerQueryHandler):
 
             items = sorted(items, key=lambda x: x[1], reverse=True)
 
-            if not query.isValid:
+            if not ctx.isValid:
                 return
 
-            query.add([i[0] for i in items])
+            yield [i[0] for i in items]
 
         else:
-            query.add(
+            yield [
                 StandardItem(
                     id="locate.info",
                     text="Token is too short",
                     subtext="Each token must have at least three characters",
                     icon_factory=lambda: makeComposedIcon(makeGraphemeIcon("🔎"), makeGraphemeIcon("⚠️"), 1.0)
                 )
-            )
+            ]
