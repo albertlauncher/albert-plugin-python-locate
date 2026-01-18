@@ -5,8 +5,7 @@ import shlex
 import subprocess
 from pathlib import Path
 
-from albert import (PluginInstance, GeneratorQueryHandler, StandardItem, Action, openFile,
-                    makeFileTypeIcon, makeGraphemeIcon, makeComposedIcon, Matcher)
+from albert import *
 
 md_iid = "5.0"
 md_version = "3.1.1"
@@ -53,7 +52,7 @@ class Plugin(PluginInstance, GeneratorQueryHandler):
                                 id=path,
                                 text=filename,
                                 subtext=path,
-                                icon_factory=lambda: makeFileTypeIcon(path),
+                                icon_factory=lambda: Icon.fileType(path),
                                 actions=[
                                     Action("open", "Open", lambda p=path: openFile(p))
                                 ]
@@ -76,6 +75,6 @@ class Plugin(PluginInstance, GeneratorQueryHandler):
                     id="locate.info",
                     text="Token is too short",
                     subtext="Each token must have at least three characters",
-                    icon_factory=lambda: makeComposedIcon(makeGraphemeIcon("🔎"), makeGraphemeIcon("⚠️"), 1.0)
+                    icon_factory=lambda: Icon.composed(Icon.grapheme("🔎"), Icon.grapheme("⚠️"), 1.0)
                 )
             ]
