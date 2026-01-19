@@ -8,7 +8,7 @@ from pathlib import Path
 from albert import *
 
 md_iid = "5.0"
-md_version = "3.1.1"
+md_version = "3.1.2"
 md_name = "Locate"
 md_description = "Find files using locate"
 md_license = "MIT"
