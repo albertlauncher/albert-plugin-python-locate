@@ -7,7 +7,7 @@ from pathlib import Path
 
 from albert import *
 
-md_iid = "5.0"
+md_iid = "6.0"
 md_version = "3.1.2"
 md_name = "Locate"
 md_description = "Find files using locate"
@@ -41,7 +41,7 @@ class Plugin(PluginInstance, GeneratorQueryHandler):
             items = []
             with subprocess.Popen(['locate', *args], stdout=subprocess.PIPE, text=True) as proc:
                 for line in proc.stdout:
-                    if not ctx.isValid:
+                    if not ctx.is_valid:
                         return
 
                     path = line.strip()
@@ -64,7 +64,7 @@ class Plugin(PluginInstance, GeneratorQueryHandler):
 
             items = sorted(items, key=lambda x: x[1], reverse=True)
 
-            if not ctx.isValid:
+            if not ctx.is_valid:
                 return
 
             yield [i[0] for i in items]
