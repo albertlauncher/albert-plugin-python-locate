@@ -54,7 +54,8 @@ class Plugin(PluginInstance, GeneratorQueryHandler):
                                 subtext=path,
                                 icon_factory=lambda: Icon.fileType(path),
                                 actions=[
-                                    Action("open", "Open", lambda p=path: openFile(p))
+                                    Action("open", "Open", lambda p=path: openFile(p)),
+                                    Action("copy", "Copy", lambda p=path: setClipboardText(p))
                                 ]
                             ),
                             float(m)
